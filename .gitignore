@@ -1,0 +1,32 @@
+criteria=c(rep(0,10),rep(1,6),rep(0,2),rep(1,7),rep(0,9))
+time_in_seconds=seq(1:length(criteria))
+part=rep("John",length(criteria))
+John=data.frame(part,criteria,time_in_seconds)
+criteria=c(rep(1,5),rep(0,2),rep(1,2),rep(0,7),rep(1,12),rep(0,18),rep(1,6))
+time_in_seconds=seq(1:length(criteria))
+part=rep("Mary",length(criteria))
+Mary=data.frame(part,criteria,time_in_seconds)
+data=rbind(John,Mary)
+
+participants=levels(data$part)
+minha.lista=lapply(participants,function(x) data[data$part==x,])
+
+blocks=c()
+for(j in 1:length(minha.lista)){
+a=rle(minha.lista[[j]]$criteria)
+a$seq=seq(1:length(a[[1]]))
+a$values=ifelse(a$values==1,"not_looking","looking")
+for(i in 1:length(a[[1]])){
+blocks=append(blocks,rep(paste(a[[3]][i],a[[2]][i],sep=""),a[[1]][i]))
+}
+}
+data$block=blocks
+
+time_inside=function(x){
+max(x-min(x))
+}
+
+data_block=aggregate(data$time_in_seconds,list(data$part,data$block),time_inside)
+colnames(data_block)=c("participant","block","time")
+data_block=data_block[order(data_block$participant,decreasing=F),]
+data_block
